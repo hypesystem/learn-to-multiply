@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Train Multiplication!</title>
+        <style type="text/css">
+            .container {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                font-size: 2em;
+                text-align: center;
+                padding-top: 150px;
+                border: 12px solid transparent;
+                transition: border 0.2s;
+            }
+            .container.success {
+                border-color: green;
+            }
+            .container.error {
+                border-color: red;
+            }
+            .x, .y, .result {
+                font-family: sans-serif;
+                display: inline-block;
+                width: 3em;
+                text-align: center;
+            }
+            .result {
+                border: none;
+                background: none;
+                font-size: 1em;
+            }
+            .small-error {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                padding: 15px;
+                background: red;
+                color: white;
+                font-weight: bold;
+                opacity: 0;
+                transition: opacity 0.2s;
+                text-align: center;
+                font-family: sans-serif;
+            }
+            .small-error.shown {
+                opacity: 1;
+            }
+            .result-flash-overlay {
+                color: red;
+                font-size: 15em;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding-top: 30px;
+                text-align: center;
+                font-family: sans-serif;
+                z-index: 15;
+                font-weight: bold;
+                text-shadow: 0 0 15px red;
+                background: rgba(255,0,0,0.3);
+                transition: opacity 0.2s;
+                opacity: 0;
+            }
+            .result-flash-overlay.shown {
+                opacity: 1;
+            }
+            .scoreBar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: red;
+            }
+            .correctBar {
+                width: 100%;
+                background: green;
+                height: 100%;
+            }
+            .scoreDisplay {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                padding: 12px 18px;
+                font-size: 1.2em;
+                font-family: sans-serif;
+                color: rgba(0,0,0,0.7);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="result-flash-overlay">12</div>
+        <div class="small-error"></div>
+        <div class="container">
+            <span class="x">x</span>
+            &times;
+            <span class="y">y</span>
+            =
+            <input class="result" type="text" />
+        </div>
+        <div class="scoreDisplay"></div>
+        <div class="scoreBar"><div class="correctBar"></div></div>
+        <script>
+            var errorBox = document.querySelector(".small-error");
+            var container = document.querySelector(".container");
+            var resultFlashOverlay = document.querySelector(".result-flash-overlay");
+            var correctBar = document.querySelector(".correctBar");
+            var scoreDisplay = document.querySelector(".scoreDisplay");
+            
+            var xBox = document.querySelector(".x");
+            var yBox = document.querySelector(".y");
+            var resultBox = document.querySelector(".result");
+            
+            var min = 1;
+            var max = 10;
+            var streakThisMax = 0;
+            
+            var streak = 0;
+            var highestMax = max;
+            var longestStreak = 0;
+            
+            var numGuesses = 0;
+            var totalTimeToGuess = 0;
+            var totalCorrectGuesses = 0;
+            var lastIntervalPoint = Date.now(); //TODO: A start button that sets this? (Instead of setting on load.)
+            
+            var x, y, result;
+            
+            var getRandomNumber = function() {
+                var range = max - min;
+                return Math.round(Math.random() * range) + min;
+            };
+            
+            var newChallenge = function() {
+                x = getRandomNumber();
+                y = getRandomNumber();
+                result = x * y;
+                
+                xBox.innerText = x;
+                yBox.innerText = y;
+                
+                resultBox.value = "";
+                resultBox.focus();
+            };
+            
+            var showSmallError = function(str) {
+                errorBox.innerText = str;
+                errorBox.classList = "small-error shown";
+                setTimeout(function() {
+                    errorBox.classList = "small-error";
+                }, 1500);
+            };
+            
+            var showSuccess = function() {
+                container.classList = "container success";
+                setTimeout(function() {
+                    container.classList = "container";
+                }, 500);
+            };
+            
+            var showError = function(correctGuess) {
+                container.classList = "container error";
+                setTimeout(function() {
+                    container.classList = "container";
+                }, 500);
+                
+                resultFlashOverlay.innerText = correctGuess;
+                resultFlashOverlay.classList = "result-flash-overlay shown";
+                setTimeout(function() {
+                    resultFlashOverlay.classList = "result-flash-overlay";
+                }, 500);
+            };
+            
+            var failStreak = function() {
+                streakThisMax = 0;
+                streak = 0;
+                if(max > 10) max--;
+            };
+            
+            var increaseStreak = function() {
+                streakThisMax++;
+                if(streakThisMax > 3) {
+                    max++;
+                    if(max > highestMax) {
+                        highestMax = max;
+                    }
+                    streakThisMax = 0;
+                }
+                
+                streak++;
+                if(streak > longestStreak) {
+                    longestStreak = streak;
+                }
+            }
+            
+            var getIntervalPoint = function() {
+                var now = Date.now();
+                var interval = now - lastIntervalPoint;
+                lastIntervalPoint = now;
+                return interval;
+            };
+            
+            var updateScoring = function() {
+                var correctPct = getCorrectGuessesRatio() * 100;
+                correctBar.style = "width: " + correctPct + "%";
+                
+                scoreDisplay.innerText = getCurrentScore().toFixed(1);
+            };
+            
+            var addGuess = function(wasCorrect, time) {
+                numGuesses++;
+                totalTimeToGuess += time;
+                if(wasCorrect) totalCorrectGuesses++;
+                
+                updateScoring();
+            };
+            
+            var checkResult = function() {
+                if(resultBox.value == "") {
+                    return showSmallError("Enter a value before pressing enter!");
+                }
+                var guess = parseInt(resultBox.value);
+                var timeToGuess = getIntervalPoint();
+                if(guess != result) {
+                    failStreak();
+                    resultBox.value = "",
+                    resultBox.focus();
+                    addGuess(false, timeToGuess);
+                    return showError(result);
+                }
+                increaseStreak();
+                addGuess(true, timeToGuess);
+                showSuccess();
+                newChallenge();
+            };
+            
+            var getAvgTimeToGuess = function() {
+                return totalTimeToGuess / numGuesses;
+            };
+            
+            var getCorrectGuessesRatio = function() {
+                return totalCorrectGuesses / numGuesses;
+            }
+            
+            var getCurrentScore = function() {
+                var power = Math.pow(5, getAvgTimeToGuess() / 1000);
+                var weight = (1 / power);
+                
+                return getCorrectGuessesRatio() * weight * highestMax * 100;
+            }
+            
+            resultBox.addEventListener("keyup", function(e) {
+                if(e.which != 13) {
+                    return;
+                }
+                checkResult();
+            });
+            
+            document.addEventListener("click", function(e) {
+                resultBox.focus();
+            });
+            
+            newChallenge();
+        </script>
+    </body>
+</html>
