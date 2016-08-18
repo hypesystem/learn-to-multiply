@@ -121,6 +121,9 @@
             var max = 10;
             var streakThisMax = 0;
             
+            var guessesBeforeGameEnds = 250;
+            var timeBeforeGameEnds = 10 * 60 * 1000; //10 mins
+            
             var streak = 0;
             var highestMax = max;
             var longestStreak = 0;
@@ -128,7 +131,8 @@
             var numGuesses = 0;
             var totalTimeToGuess = 0;
             var totalCorrectGuesses = 0;
-            var lastIntervalPoint = Date.now(); //TODO: A start button that sets this? (Instead of setting on load.)
+            var startTime = Date.now(); //TODO: A start button that sets this? (Instead of setting on load.) -- or just press enter
+            var lastIntervalPoint = startTime;
             
             var x, y, result;
             
@@ -137,7 +141,18 @@
                 return Math.round(Math.random() * range) + min;
             };
             
+            var endGame = function() {
+                alert("Game end after " + (Date.now() - startTime) + "ms");
+            }
+            
             var newChallenge = function() {
+                if(numGuesses >= guessesBeforeGameEnds) {
+                    return endGame();
+                }
+                if(Date.now() - startTime >= timeBeforeGameEnds) {
+                    return endGame();
+                }
+                
                 x = getRandomNumber();
                 y = getRandomNumber();
                 result = x * y;
