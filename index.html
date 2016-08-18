@@ -225,7 +225,7 @@
                 var correctPct = getCorrectGuessesRatio() * 100;
                 correctBar.style = "width: " + correctPct + "%";
                 
-                scoreDisplay.innerText = getCurrentScore().toFixed(1);
+                scoreDisplay.innerText = getCurrentScore().toFixed(1) + " points";
             };
             
             var addGuess = function(wasCorrect, time) {
