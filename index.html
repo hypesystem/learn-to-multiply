@@ -273,6 +273,8 @@
             }
             
             var getCurrentScore = function() {
+                //TODO: Scoring is broken: answering quickly but wrongly ups the score :-(
+                //      ... maybe use time-between-correct-guesses instead of time-between-guesses?
                 var power = Math.pow(5, getAvgTimeToGuess() / 1000);
                 var weight = (1 / power);
                 
