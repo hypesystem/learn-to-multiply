@@ -83,14 +83,20 @@
                 background: green;
                 height: 100%;
             }
-            .scoreDisplay {
+            .cornerDisplay {
                 position: fixed;
-                bottom: 0;
-                right: 0;
                 padding: 12px 18px;
                 font-size: 1.2em;
                 font-family: sans-serif;
                 color: rgba(0,0,0,0.7);
+            }
+            .scoreDisplay {
+                bottom: 0;
+                right: 0;
+            }
+            .guessesLeftDisplay {
+                bottom: 0;
+                left: 0;
             }
         </style>
     </head>
@@ -104,7 +110,8 @@
             =
             <input class="result" type="text" />
         </div>
-        <div class="scoreDisplay"></div>
+        <div class="guessesLeftDisplay cornerDisplay"></div>
+        <div class="scoreDisplay cornerDisplay"></div>
         <div class="scoreBar"><div class="correctBar"></div></div>
         <script>
             var errorBox = document.querySelector(".small-error");
@@ -112,6 +119,7 @@
             var resultFlashOverlay = document.querySelector(".result-flash-overlay");
             var correctBar = document.querySelector(".correctBar");
             var scoreDisplay = document.querySelector(".scoreDisplay");
+            var guessesLeftDisplay = document.querySelector(".guessesLeftDisplay");
             
             var xBox = document.querySelector(".x");
             var yBox = document.querySelector(".y");
@@ -226,6 +234,7 @@
                 correctBar.style = "width: " + correctPct + "%";
                 
                 scoreDisplay.innerText = getCurrentScore().toFixed(1) + " points";
+                guessesLeftDisplay.innerText = (guessesBeforeGameEnds - numGuesses) + " to go (or " + ((startTime + timeBeforeGameEnds - Date.now()) / (1000 * 60)).toFixed(0) + " min)";
             };
             
             var addGuess = function(wasCorrect, time) {
