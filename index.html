@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Train Multiplication!</title>
+        <title>Learn to Multiply!</title>
         <style type="text/css">
             .container {
                 position: fixed;
@@ -120,39 +120,39 @@
             var correctBar = document.querySelector(".correctBar");
             var scoreDisplay = document.querySelector(".scoreDisplay");
             var guessesLeftDisplay = document.querySelector(".guessesLeftDisplay");
-            
+
             var xBox = document.querySelector(".x");
             var yBox = document.querySelector(".y");
             var resultBox = document.querySelector(".result");
-            
+
             var min = 1;
             var max = 10;
             var streakThisMax = 0;
-            
+
             var guessesBeforeGameEnds = 250;
             var timeBeforeGameEnds = 10 * 60 * 1000; //10 mins
-            
+
             var streak = 0;
             var highestMax = max;
             var longestStreak = 0;
-            
+
             var numGuesses = 0;
             var totalTimeToGuess = 0;
             var totalCorrectGuesses = 0;
             var startTime = Date.now(); //TODO: A start button that sets this? (Instead of setting on load.) -- or just press enter
             var lastIntervalPoint = startTime;
-            
+
             var x, y, result;
-            
+
             var getRandomNumber = function() {
                 var range = max - min;
                 return Math.round(Math.random() * range) + min;
             };
-            
+
             var endGame = function() {
                 alert("Game end after " + (Date.now() - startTime) + "ms");
             }
-            
+
             var newChallenge = function() {
                 if(numGuesses >= guessesBeforeGameEnds) {
                     return endGame();
@@ -160,18 +160,18 @@
                 if(Date.now() - startTime >= timeBeforeGameEnds) {
                     return endGame();
                 }
-                
+
                 x = getRandomNumber();
                 y = getRandomNumber();
                 result = x * y;
-                
+
                 xBox.innerText = x;
                 yBox.innerText = y;
-                
+
                 resultBox.value = "";
                 resultBox.focus();
             };
-            
+
             var showSmallError = function(str) {
                 errorBox.innerText = str;
                 errorBox.classList = "small-error shown";
@@ -179,33 +179,33 @@
                     errorBox.classList = "small-error";
                 }, 1500);
             };
-            
+
             var showSuccess = function() {
                 container.classList = "container success";
                 setTimeout(function() {
                     container.classList = "container";
                 }, 500);
             };
-            
+
             var showError = function(correctGuess) {
                 container.classList = "container error";
                 setTimeout(function() {
                     container.classList = "container";
                 }, 500);
-                
+
                 resultFlashOverlay.innerText = correctGuess;
                 resultFlashOverlay.classList = "result-flash-overlay shown";
                 setTimeout(function() {
                     resultFlashOverlay.classList = "result-flash-overlay";
                 }, 500);
             };
-            
+
             var failStreak = function() {
                 streakThisMax = 0;
                 streak = 0;
                 if(max > 10) max--;
             };
-            
+
             var increaseStreak = function() {
                 streakThisMax++;
                 if(streakThisMax > 3) {
@@ -215,36 +215,36 @@
                     }
                     streakThisMax = 0;
                 }
-                
+
                 streak++;
                 if(streak > longestStreak) {
                     longestStreak = streak;
                 }
             }
-            
+
             var getIntervalPoint = function() {
                 var now = Date.now();
                 var interval = now - lastIntervalPoint;
                 lastIntervalPoint = now;
                 return interval;
             };
-            
+
             var updateScoring = function() {
                 var correctPct = getCorrectGuessesRatio() * 100;
                 correctBar.style = "width: " + correctPct + "%";
-                
+
                 scoreDisplay.innerText = getCurrentScore().toFixed(1) + " points";
                 guessesLeftDisplay.innerText = (guessesBeforeGameEnds - numGuesses) + " to go (or " + ((startTime + timeBeforeGameEnds - Date.now()) / (1000 * 60)).toFixed(0) + " min)";
             };
-            
+
             var addGuess = function(wasCorrect, time) {
                 numGuesses++;
                 totalTimeToGuess += time;
                 if(wasCorrect) totalCorrectGuesses++;
-                
+
                 updateScoring();
             };
-            
+
             var checkResult = function() {
                 if(resultBox.value == "") {
                     return showSmallError("Enter a value before pressing enter!");
@@ -263,35 +263,35 @@
                 showSuccess();
                 newChallenge();
             };
-            
+
             var getAvgTimeToGuess = function() {
                 return totalTimeToGuess / numGuesses;
             };
-            
+
             var getCorrectGuessesRatio = function() {
                 return totalCorrectGuesses / numGuesses;
             }
-            
+
             var getCurrentScore = function() {
                 //TODO: Scoring is broken: answering quickly but wrongly ups the score :-(
                 //      ... maybe use time-between-correct-guesses instead of time-between-guesses?
                 var power = Math.pow(5, getAvgTimeToGuess() / 1000);
                 var weight = (1 / power);
-                
+
                 return getCorrectGuessesRatio() * weight * highestMax * 100;
             }
-            
+
             resultBox.addEventListener("keyup", function(e) {
                 if(e.which != 13) {
                     return;
                 }
                 checkResult();
             });
-            
+
             document.addEventListener("click", function(e) {
                 resultBox.focus();
             });
-            
+
             newChallenge();
         </script>
     </body>
