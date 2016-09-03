@@ -98,6 +98,22 @@
                 bottom: 0;
                 left: 0;
             }
+            .gameEndedBox {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                z-index: 100;
+                font-family: sans-serif;
+                padding: 5%;
+                display: none;
+                border: 10px solid green;
+            }
+            .gameEndedBox h1 {
+                color: rgba(0,0,0,0.6);
+            }
         </style>
     </head>
     <body>
@@ -113,6 +129,17 @@
         <div class="guessesLeftDisplay cornerDisplay"></div>
         <div class="scoreDisplay cornerDisplay"></div>
         <div class="scoreBar"><div class="correctBar"></div></div>
+        <div class="gameEndedBox">
+            <h1>You just finished a session!</h1>
+            <p>Sessions are deliberately short. You should try to do one or two (or maybe three) every day to really get good quickly.</p>
+            <h2>Here's how you did:</h2>
+            <p>
+                Longest streak (correct guesses in a row): <span class="longestStreakEndResult"></span><br>
+                Highest max (highest number possibly shown): <span class="highestMaxEndResult"></span><br>
+                Final score: <span class="scoreEndResult"></span>
+            </p>
+            <a href="." class="restartButton">Play again</a>
+        </div>
         <script>
             var errorBox = document.querySelector(".small-error");
             var container = document.querySelector(".container");
@@ -120,6 +147,10 @@
             var correctBar = document.querySelector(".correctBar");
             var scoreDisplay = document.querySelector(".scoreDisplay");
             var guessesLeftDisplay = document.querySelector(".guessesLeftDisplay");
+            var gameEndedBox = document.querySelector(".gameEndedBox");
+            var longestStreakEndResult = document.querySelector(".longestStreakEndResult");
+            var highestMaxEndResult = document.querySelector(".highestMaxEndResult");
+            var scoreEndResult = document.querySelector(".scoreEndResult");
 
             var xBox = document.querySelector(".x");
             var yBox = document.querySelector(".y");
@@ -150,7 +181,10 @@
             };
 
             var endGame = function() {
-                alert("Game end after " + (Date.now() - startTime) + "ms");
+                gameEndedBox.style = "display: block";
+                longestStreakEndResult.innerText = longestStreak;
+                highestMaxEndResult.innerText = highestMax;
+                scoreEndResult.innerText = getCurrentScore().toFixed(1);
             }
 
             var newChallenge = function() {
